@@ -1,0 +1,32 @@
+{
+    "name": "RESTful-Server",
+    "version": "0.0.0",
+    "description": "Dynamic server using REST requests",
+    "author": {
+        "name": "Noah Ponto",
+        "email": "pont7171@stthomas.edu"
+    },
+    "contributors": [
+        {
+            "name": "Tanya Hopkins",
+            "email": "hopk3874@stthomas.edu"
+        },
+        {
+            "name": "Peter Milbrath",
+            "email": "milb6438@stthomas.edu"
+        }
+    ],
+    "main": "server.js",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nponto/restfulserver"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "express": "^4.17.1",
+        "fs": "^0.0.1-security",
+        "path": "^0.12.7",
+        "sqlite3": "^5.0.2",
+        "url": "^0.11.0"
+    }
+}
