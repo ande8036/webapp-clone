@@ -62,6 +62,7 @@ function init() {
         console.log('Error:', error);
     });
 
+    let isLatLng = true;
 
     map.getContainer().addEventListener("wheel", recenterMap);
     map.addEventListener("mouseup", recenterMap);
@@ -71,32 +72,48 @@ function init() {
         let list = document.getElementById('result');
         
         var new_center = map.getCenter();
-        console.log("Current center is: " + new_center);
+        //console.log("Current center is: " + new_center);
 
-        list.textContent = ("Map is currently centered at: " + ' (' + new_center.lat + ", " + new_center.lng + ") ");
+        
+        //console.log( "\n\n\n" +isLatLng+"\n\n\n");
+        if(isLatLng == false) {
+            getAddress(event);
+        } else {
+            list.textContent = ("Map is currently centered at: " + ' (' + new_center.lat + ", " + new_center.lng + ") ");
+        }
     }
 
 
     let isLat = true;
 
     var address_lookup = document.getElementById('address');
-    address_lookup.addEventListener('click', getAddress, false);
+    //address_lookup.addEventListener('click', recenterMap, false);
+    address_lookup.addEventListener('click', swapAddressLatLng, false);
 
     var lookup = document.getElementById('lookup');
     lookup.addEventListener('click', geoLocate, false);
+
+    function swapAddressLatLng(event) {
+        if(isLatLng == true) {
+            isLatLng = false;
+        } else {
+            isLatLng = true;
+        }
+        recenterMap();
+    }
     
 
     function getAddress(event) {
         
         let url = 'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' + map.getCenter().lat + '&lon=' + map.getCenter().lng;
-        console.log(url);
+        //console.log(url);
         
         getJSONAddress(url, (data) => {
             let list = document.getElementById('result');
           
             //console.log(data)
             list.textContent = data.display_name;
-            console.log(data.display_name);
+            //console.log(data.display_name);
             
         });
         
@@ -176,7 +193,7 @@ function geoLocate(event) {
         list.appendChild(item);
         var latlng = L.latLng(location.lat, location.lon);
         map.setView(latlng, 15, this.options);
-        console.log(latlng);
+        //console.log(latlng);
 
         
     });
