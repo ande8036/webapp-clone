@@ -18,11 +18,30 @@
     <!-- Application -->
     <link rel="stylesheet" href="css/style.css"/>
     <script type="application/javascript" src="scripts/app.js"></script>
+
+    
+
+    
+
 </head>
 <body onload="init()">
     <!-- Main app -->
     <div id="app">
         <div id="leafletmap"></div>
+    </div>
+
+    <div> 
+        <h1>Location Look Up</h1>
+        <label>Location: </label><input id="location" type="text" placeholder="enter location" style="width: 15rem;"/>
+        <br/><br/>
+        <button id="lookup" type="button">Look Up</button>
+        <button id="address" type="button">Address/LatLng</button>
+        <br/><br/>
+        <div style="width: 50rem; padding: 0.25rem; border: solid 1px black; overflow: scroll;">
+            <h3 style="margin: 0;">Location Information</h3>
+            <ul id="result"></ul>
+        </div>
+        
     </div>
 </body>
 </html>
