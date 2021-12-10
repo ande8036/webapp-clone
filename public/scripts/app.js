@@ -1,3 +1,5 @@
+
+
 let app;
 let map;
 let neighborhood_markers = 
@@ -22,6 +24,9 @@ let neighborhood_markers =
 ];
 
 function init() {
+
+    
+    
     let crime_url = 'http://localhost:8000';
 
     app = new Vue({
@@ -42,6 +47,8 @@ function init() {
         }
     });
 
+    
+
     map = L.map('leafletmap').setView([app.map.center.lat, app.map.center.lng], app.map.zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -52,6 +59,8 @@ function init() {
     
     let district_boundary = new L.geoJson();
     district_boundary.addTo(map);
+
+    
 
     getJSON('data/StPaulDistrictCouncil.geojson').then((result) => {
         // St. Paul GeoJSON
@@ -138,6 +147,46 @@ function init() {
         req.open('GET', url, true);
         req.send();
     }
+
+    var crime_thing = document.getElementById('crime');
+    crime_thing.addEventListener('click', getIncidents, false);
+
+    function getIncidents(event) {
+        
+        
+        
+        crimeFunction((data) => {
+            
+          
+            console.log(data)
+            
+            
+        });
+        
+        
+    }
+
+    function crimeFunction(callback) {
+        var req =new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+                // successfully received data!
+                let data = JSON.parse(req.response);
+                callback(data);
+
+            }
+        };
+
+        req.open('GET', crime_url + "/api/incidents?limit=1000", true);
+        req.send();
+
+
+    }
+
+    var testMessage = document.getElementById("testID");
+    testMessage.innerHTML = testMessage.innerHTML.replace(/aaaaaa./g,'<a href=\"http://www.google.com/').replace(/.bbbbbb/g,'/world\">Helloworld</a>');
+
+    
 }
 
 function getJSON(url) {
