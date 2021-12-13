@@ -33,9 +33,9 @@ app.get('/api/codes', (req, res) => {
             res.status(200).type('json').send(rows);
         });
     } else {
-        console.log(req.query.code);
+        //console.log(req.query.code);
         let codes = req.query.code.split(',');
-        console.log(codes);
+        //console.log(codes);
         var sql = "SELECT * FROM Codes WHERE code = " + codes[0];
         function extraSQL(arr) { // function to concatenate OR to the sql query syntax
             var string = '';
@@ -45,12 +45,12 @@ app.get('/api/codes', (req, res) => {
             return string;
         }
         sql += extraSQL(codes);
-        console.log(sql);
+        //console.log(sql);
         db.all(sql, (err, rows) => {
             if (err || rows === undefined) {
                 res.status(500).send("ERROR: Could not find codes");
             } else {
-                console.log(rows);
+                //console.log(rows);
                 res.status(200).type('json').send(rows);
             }
         });
@@ -64,9 +64,9 @@ app.get('/api/neighborhoods', (req, res) => {
             res.status(200).type('json').send(rows);
         });
     } else {
-        console.log(req.query.id);
+        //console.log(req.query.id);
         let ids = req.query.id.split(',');
-        console.log(ids);
+        //console.log(ids);
         var sql = "SELECT * FROM Neighborhoods WHERE neighborhood_number = " + ids[0];
         function extraSQL(arr) { // function to concatenate OR to the sql query syntax
             var string = '';
@@ -80,7 +80,7 @@ app.get('/api/neighborhoods', (req, res) => {
             if (err || rows === undefined) {
                 res.status(500).send("ERROR: Could not find neighborhoods");
             } else {
-                console.log(rows);
+                //console.log(rows);
                 res.status(200).type('json').send(rows);
             }
         });
@@ -90,7 +90,7 @@ app.get('/api/neighborhoods', (req, res) => {
 app.get('/api/incidents', (req, res) => {
     if (Object.keys(req.query).length === 0) {
         db.all('SELECT * FROM Incidents ORDER BY date_time', (err, rows) => {
-            console.log(rows);
+            //console.log(rows);
             res.status(200).type('json').send(rows);
         });
     } else {
@@ -106,8 +106,8 @@ app.get('/api/incidents', (req, res) => {
 
         let search = url.parse(req.url, true).search;
         search = search.replace('?', '');
-        console.log(search);
-        console.log(req.query);
+        //console.log(search);
+        //console.log(req.query);
 
         if (search.includes('start_date') && !(search.includes('end_date'))) {
             sql += 'date_time >= ' + "'" + start + "'";
@@ -174,13 +174,13 @@ app.get('/api/incidents', (req, res) => {
 
         
 
-        console.log(sql);
+        //console.log(sql);
 
         db.all(sql, (err, rows) => {
             if (err || rows === undefined) {
                 res.status(500).send("ERROR: Could not find incidents");
             } else {
-                console.log('rows is: ' + rows);
+                //console.log('rows is: ' + rows);
                 res.status(200).type('json').send(rows);
             }
         });
@@ -191,10 +191,10 @@ app.get('/api/incidents', (req, res) => {
 });
 
 app.put('/api/new-incident', (req,res) => {
-    console.log(req.body);
+    //console.log(req.body);
     db.get('SELECT * FROM Incidents WHERE case_number = ?', [req.body.case_number], (err,row) => {
-        console.log(row);
-        console.log(err);
+        //console.log(row);
+        //console.log(err);
         if(err || row !== undefined) {
             res.status(500).send("ERROR: could not insert new incident! (case number conflict)");
         } else {
@@ -210,15 +210,15 @@ app.put('/api/new-incident', (req,res) => {
 });
 
 app.delete('/api/remove-incident', (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     //console.log(req.body.case_number);
     db.get('SELECT * FROM Incidents WHERE case_number =?', [req.body.case_number], (err, row) => {
         if (err || row === undefined)   {
             res.status(500).send("Case does not exist. Unable to delete");
         } else {
             db.run('DELETE FROM Incidents WHERE case_number = ?', [req.body.case_number], (err,rows) => {
-                console.log(req.body.case_number);
-                console.log(rows);
+                //console.log(req.body.case_number);
+                //console.log(rows);
                 //console.log(err);
                 if (err) {
                     res.status(500).send("Error when trying to delete incident");
