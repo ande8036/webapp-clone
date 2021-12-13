@@ -151,19 +151,105 @@ function init() {
     var crime_thing = document.getElementById('crime');
     crime_thing.addEventListener('click', getIncidents, false);
 
+    getIncidents;
+
     function getIncidents(event) {
         
+        let codeJSON;
+
+        getCodeName((codeData) => {
+            //console.log(codeData);
+            codeJSON = codeData;
+            //console.log(codeJSON);
+        });
+
+        let neighborhoodJSON;
+
+        getNeighborhoodName((neighborhoodData) => {
+            //console.log(codeData);
+            neighborhoodJSON = neighborhoodData;
+            console.log(codeJSON);
+        });
         
         
         crimeFunction((data) => {
             
-          
-            console.log(data)
             
+            
+            //console.log(data)
+            var dataString = "";
+
+            dataString += "<table>\n<tr>\n<th>Case Number</th>\n<th>Date-time</th>\n<th>Incident Type</th>\n<th>Incident</th>\n<th>Police Grid</th>\n<th>Neighborhood</th>\n<th>Block</th>\n</tr>";
+            for(let i = 0; i < data.length; i++) {
+                //console.log(data[i]);
+                //console.log(data[i].case_number);
+                dataString += "<tr><td>" + data[i].case_number + "</td>\n" + "<td>" + data[i].date_time + "</td>\n" + "<td>";
+
+                let codeString = "error";
+                //console.log(codeJSON);
+                for(let j = 0; j < codeJSON.length; j++) {
+                    if(codeJSON[j].code == data[i].code) {
+                        codeString = codeJSON[j].incident_type;
+                    }
+                }
+
+                dataString += codeString;
+
+                dataString += "</td>\n" + "<td>" + data[i].incident + "</td>\n" + "<td>" + data[i].police_grid + "</td>\n" + "<td>";
+                
+                let neighborhoodString = "error";
+                //console.log(codeJSON);
+                for(let j = 0; j < neighborhoodJSON.length; j++) {
+                    if(neighborhoodJSON[j].neighborhood_number == data[i].neighborhood_number) {
+                        neighborhoodString = neighborhoodJSON[j].neighborhood_name;
+                    }
+                }
+
+                dataString += neighborhoodString;
+
+                dataString += "</td>\n" + "<td>" + data[i].block + "</td>\n" + "</tr>\n"
+            }
+            dataString += "</table>";
+            //console.log(dataString);
+            testMessage.innerHTML = testMessage.innerHTML.replace(/DATA/g, dataString);
             
         });
         
         
+    }
+
+    function getCodeName(callback) {
+        var req =new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+                // successfully received data!
+                data = JSON.parse(req.response);
+                callback(data);
+
+            }
+        };
+
+        req.open('GET', crime_url + "/api/codes", true);
+        req.send();
+
+
+    }
+
+    function getNeighborhoodName(callback) {
+        var req =new XMLHttpRequest();
+        req.onreadystatechange = function() {
+            if (req.readyState == 4 && req.status == 200) {
+                // successfully received data!
+                data = JSON.parse(req.response);
+                callback(data);
+
+            }
+        };
+
+        req.open('GET', crime_url + "/api/neighborhoods", true);
+        req.send();
+
+
     }
 
     function crimeFunction(callback) {
@@ -171,7 +257,7 @@ function init() {
         req.onreadystatechange = function() {
             if (req.readyState == 4 && req.status == 200) {
                 // successfully received data!
-                let data = JSON.parse(req.response);
+                data = JSON.parse(req.response);
                 callback(data);
 
             }
@@ -184,8 +270,11 @@ function init() {
     }
 
     var testMessage = document.getElementById("testID");
-    testMessage.innerHTML = testMessage.innerHTML.replace(/aaaaaa./g,'<a href=\"http://www.google.com/').replace(/.bbbbbb/g,'/world\">Helloworld</a>');
+    
 
+    
+
+    
     
 }
 
