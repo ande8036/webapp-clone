@@ -240,9 +240,12 @@ function init() {
 
     getIncidents();
 
+    var update = document.getElementById('update');
+    update.addEventListener('click', getIncidents, false);
+
 
     function getIncidents(event) {
-        
+        //console.log("test");
         let codeJSON;
 
         getCodeName((codeData) => {
@@ -256,62 +259,68 @@ function init() {
         getNeighborhoodName((neighborhoodData) => {
             //console.log(codeData);
             neighborhoodJSON = neighborhoodData;
-            console.log(codeJSON);
+            //console.log(codeJSON);
         });
         
         
         crimeFunction((data) => {
             
             
+            setTimeout(() => {
             
-            //console.log(data)
-            var dataString = "";
+            
+                //console.log(data)
+                var dataString = "";
 
-            dataString += "<table>\n<tr>\n<th>Case Number</th>\n<th>Date-time</th>\n<th>Incident Type</th>\n<th>Incident</th>\n<th>Police Grid</th>\n<th>Neighborhood</th>\n<th>Block</th>\n</tr>";
-            for(let i = 0; i < data.length; i++) {
-                //console.log(data[i]);
-                //console.log(data[i].case_number);
-                dataString += "<tr"
+                dataString += "<table>\n<tr>\n<th>Case Number</th>\n<th>Date-time</th>\n<th>Incident Type</th>\n<th>Incident</th>\n<th>Police Grid</th>\n<th>Neighborhood</th>\n<th>Block</th>\n</tr>";
+                for(let i = 0; i < data.length; i++) {
+                    //console.log(data[i]);
+                    //console.log(data[i].case_number);
+                    dataString += "<tr"
 
-                if ((data[i].code > 0 && (data[i].code <= 453)) || (data[i].code >= 810 && data[i].code <= 863)) {
-                    dataString += " style=\"background-color:#d46159\"";
-                } else if (data[i].code >= 500 && (data[i].code <= 722)) {
-                    dataString += " style=\"background-color:#73d9eb\"";
-                } else if (data[i].code >= 900 && data[i].code <= 1436) {
-                    dataString += " style=\"background-color:#73d9eb\"";
-                } else {
-                    dataString += " style=\"background-color:moccasin\"";
-                }
-                
-                dataString += "><td>" + data[i].case_number + "</td>\n" + "<td>" + data[i].date_time + "</td>\n" + "<td>";
-
-                let codeString = "error";
-                //console.log(codeJSON);
-                for(let j = 0; j < codeJSON.length; j++) {
-                    if(codeJSON[j].code == data[i].code) {
-                        codeString = codeJSON[j].incident_type;
+                    if ((data[i].code > 0 && (data[i].code <= 453)) || (data[i].code >= 810 && data[i].code <= 863)) {
+                        dataString += " style=\"background-color:#d46159\"";
+                    } else if (data[i].code >= 500 && (data[i].code <= 722)) {
+                        dataString += " style=\"background-color:#73d9eb\"";
+                    } else if (data[i].code >= 900 && data[i].code <= 1436) {
+                        dataString += " style=\"background-color:#73d9eb\"";
+                    } else {
+                        dataString += " style=\"background-color:moccasin\"";
                     }
-                }
+                    
+                    dataString += "><td>" + data[i].case_number + "</td>\n" + "<td>" + data[i].date_time + "</td>\n" + "<td>";
 
-                dataString += codeString;
-
-                dataString += "</td>\n" + "<td>" + data[i].incident + "</td>\n" + "<td>" + data[i].police_grid + "</td>\n" + "<td>";
-                
-                let neighborhoodString = "error";
-                //console.log(codeJSON);
-                for(let j = 0; j < neighborhoodJSON.length; j++) {
-                    if(neighborhoodJSON[j].neighborhood_number == data[i].neighborhood_number) {
-                        neighborhoodString = neighborhoodJSON[j].neighborhood_name;
+                    let codeString = "error";
+                    //console.log(codeJSON);
+                    for(let j = 0; j < codeJSON.length; j++) {
+                        if(codeJSON[j].code == data[i].code) {
+                            codeString = codeJSON[j].incident_type;
+                        }
                     }
+
+                    dataString += codeString;
+
+                    dataString += "</td>\n" + "<td>" + data[i].incident + "</td>\n" + "<td>" + data[i].police_grid + "</td>\n" + "<td>";
+                    
+                    let neighborhoodString = "error";
+                    //console.log(codeJSON);
+                    for(let j = 0; j < neighborhoodJSON.length; j++) {
+                        if(neighborhoodJSON[j].neighborhood_number == data[i].neighborhood_number) {
+                            neighborhoodString = neighborhoodJSON[j].neighborhood_name;
+                        }
+                    }
+
+                    dataString += neighborhoodString;
+
+                    dataString += "</td>\n" + "<td>" + data[i].block + "</td>\n" + "</tr>\n"
                 }
+                dataString += "</table>";
+                
+                testMessage.innerHTML = 'DATA';
 
-                dataString += neighborhoodString;
+                testMessage.innerHTML = testMessage.innerHTML.replace(/DATA/g, dataString);
 
-                dataString += "</td>\n" + "<td>" + data[i].block + "</td>\n" + "</tr>\n"
-            }
-            dataString += "</table>";
-            //console.log(dataString);
-            testMessage.innerHTML = testMessage.innerHTML.replace(/DATA/g, dataString);
+            }, 500);
             
         });
         
@@ -352,6 +361,8 @@ function init() {
 
     }
 
+    
+
     function crimeFunction(callback) {
         var req =new XMLHttpRequest();
         req.onreadystatechange = function() {
@@ -362,8 +373,224 @@ function init() {
 
             }
         };
+        var limit = document.getElementById("limit");
+        //console.log("TTTTT" + limit.value + "TTTTTT");
+        
+        let realLimit = limit.value + "";
+        
+        if(realLimit.length > 0) {
+            realLimit = parseInt(realLimit);
+        } else {
+            realLimit = 1000;
+        }
 
-        req.open('GET', crime_url + "/api/incidents?limit=1000", true);
+        if(typeof realLimit != "number" || Number.isNaN(realLimit)) {
+            realLimit = 1000;
+        }
+        if(realLimit < 0) {
+            realLimit = 1000;
+        }
+
+        var start_date = document.getElementById("start_date").value;
+        var end_date= document.getElementById("end_date").value;
+        //console.log(start_date);
+
+        if(start_date.length != 10) {
+            start_date = "2000-01-01";
+        } else if(start_date.charAt(4) != "-" || start_date.charAt(7) != "-") {
+            //console.log("success");
+            start_date = "2000-01-01";
+        } else {
+            let badFormat = 0;
+            for(let i = 0; i < 4; i++) {
+                if(start_date.charAt(i) >= "0" && start_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            for(let i = 5; i < 7; i++) {
+                if(start_date.charAt(i) >= "0" && start_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            for(let i = 8; i < 10; i++) {
+                if(start_date.charAt(i) >= "0" && start_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            if(badFormat == 1) {
+                start_date = "2000-01-01";
+            }
+        }
+        if(end_date.length != 10) {
+            end_date = "3000-01-01";
+        } else if(end_date.charAt(4) != "-" || end_date.charAt(7) != "-") {
+            //console.log("success");
+            end_date = "3000-01-01";
+        } else {
+            let badFormat = 0;
+            for(let i = 0; i < 4; i++) {
+                if(end_date.charAt(i) >= "0" && end_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            for(let i = 5; i < 7; i++) {
+                if(end_date.charAt(i) >= "0" && end_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            for(let i = 8; i < 10; i++) {
+                if(end_date.charAt(i) >= "0" && end_date.charAt(i) <= "9") {
+
+                } else {
+                    badFormat = 1;
+                }
+            }
+            if(badFormat == 1) {
+                end_date = "3000-01-01";
+            }
+        }
+
+        var neighborhoodString = "";
+
+        var n1 = document.getElementById("Southeast");
+        if(n1.checked == true) {
+            neighborhoodString += "1,";
+        }
+        var n2 = document.getElementById("Greater East Side");
+        if(n2.checked == true) {
+            neighborhoodString += "2,";
+        }
+        var n3 = document.getElementById("West Side");
+        if(n3.checked == true) {
+            neighborhoodString += "3,";
+        }
+        var n4 = document.getElementById("Dayton's Bluff");
+        if(n4.checked == true) {
+            neighborhoodString += "4,";
+        }
+        var n5 = document.getElementById("Payne - Phalen");
+        if(n5.checked == true) {
+            neighborhoodString += "5,";
+        }
+        var n6 = document.getElementById("North End");
+        if(n6.checked == true) {
+            neighborhoodString += "6,";
+        }
+        var n7 = document.getElementById("Frogtown");
+        if(n7.checked == true) {
+            neighborhoodString += "7,";
+        }
+        var n8 = document.getElementById("Summit - University");
+        if(n8.checked == true) {
+            neighborhoodString += "8,";
+        }
+        var n9 = document.getElementById("West Seventh - Fort Road");
+        if(n9.checked == true) {
+            neighborhoodString += "9,";
+        }
+        var n10 = document.getElementById("Como Park");
+        if(n10.checked == true) {
+            neighborhoodString += "10,";
+        }
+        var n11 = document.getElementById("Hamline - Midway");
+        if(n11.checked == true) {
+            neighborhoodString += "11,";
+        }
+        var n12 = document.getElementById("Saint Anthony Park");
+        if(n12.checked == true) {
+            neighborhoodString += "12,";
+        }
+        var n13 = document.getElementById("Union Park");
+        if(n13.checked == true) {
+            neighborhoodString += "13,";
+        }
+        var n14 = document.getElementById("Macalester - Groveland");
+        if(n14.checked == true) {
+            neighborhoodString += "14,";
+        }
+        var n15 = document.getElementById("Highland");
+        if(n15.checked == true) {
+            neighborhoodString += "15,";
+        }
+        var n16 = document.getElementById("Summit Hill");
+        if(n16.checked == true) {
+            neighborhoodString += "16,";
+        }
+        var n17 = document.getElementById("Capitol River");
+        if(n17.checked == true) {
+            neighborhoodString += "17,";
+        }
+
+        if(neighborhoodString.length > 0) {
+            neighborhoodString = neighborhoodString.substring(0, neighborhoodString.length - 1);
+            neighborhoodString = "&neighborhood=" + neighborhoodString;
+        }
+
+        var codeString = "";
+
+        var c1 = document.getElementById("100");
+        if(c1.checked == true) {
+            codeString += "100,110,120,";
+        }
+        var c2 = document.getElementById("200");
+        if(c2.checked == true) {
+            codeString += "210,220,";
+        }
+        var c3 = document.getElementById("300");
+        if(c3.checked == true) {
+            codeString += "300,311,312,313,314,321,322,323,324,331,333,334,341,342,343,344,351,352,353,354,361,363,364,371,372,373,374,";
+        }
+        var c4 = document.getElementById("500");
+        if(c4.checked == true) {
+            codeString += "500,510,511,513,515,516,520,521,523,525,526,530,531,533,535,536,540,541,543,545,546,550,551,553,555,556,560,561,563,565,566,";
+        }
+        var c5 = document.getElementById("600");
+        if(c5.checked == true) {
+            codeString += "600,603,611,612,613,614,621,622,623,630,631,632,633,640,641,642,643,651,652,653,661,662,663,671,672,673,681,682,683,691,692,693,";
+        }
+        var c6 = document.getElementById("800");
+        if(c6.checked == true) {
+            codeString += "400,410,411,412,420,421,422,430,431,432,440,441,442,450,451,452,453,810,861,862,863,";
+        }
+        var c7 = document.getElementById("900");
+        if(c7.checked == true) {
+            codeString += "900,901,903,905,911,913,915,921,922,923,925,931,933,941,942,951,961,971,972,975,981,982,";
+        }
+        var c8 = document.getElementById("1400");
+        if(c8.checked == true) {
+            codeString += "1400,1401,1410,1415,1416,1420,1425,1426,1430,1435,1436,";
+        }
+        var c9 = document.getElementById("1800");
+        if(c9.checked == true) {
+            codeString += "1800,1810,1811,1812,1813,1814,1815,1820,1822,1823,1824,1825,1830,1835,1840,1841,1842,1843,1844,1845,1850,1855,1860,1865,1870,1880,1885,";
+        }
+        var c10 = document.getElementById("2619");
+        if(c10.checked == true) {
+            codeString += "2619,3100,9954,9959,9986,";
+        }
+        
+        
+        if(codeString.length > 0) {
+            codeString = codeString.substring(0, codeString.length - 1);
+            codeString = "&code=" + codeString;
+        }
+        
+        
+        //console.log(neighborhoodString);
+
+        //console.log(crime_url + '/api/incidents?limit=' + realLimit + "&start_date=" + start_date + "&end_date=" + end_date);
+
+        req.open('GET', (crime_url + '/api/incidents?limit=' + realLimit + "&start_date=" + start_date + "&end_date=" + end_date + neighborhoodString + codeString), true);
         req.send();
 
 
