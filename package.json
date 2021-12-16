@@ -1,25 +1,21 @@
 {
-    "name": "RESTful-Server",
+    "name": "Webapp",
     "version": "0.0.0",
-    "description": "Dynamic server using REST requests",
+    "description": "Webapp using Leaflet map and crime data API",
     "author": {
         "name": "Noah Ponto",
         "email": "pont7171@stthomas.edu"
     },
     "contributors": [
         {
-            "name": "Tanya Hopkins",
-            "email": "hopk3874@stthomas.edu"
-        },
-        {
-            "name": "Peter Milbrath",
-            "email": "milb6438@stthomas.edu"
+            "name": "Erik Andersen",
+            "email": "ande8036@stthomas.edu"
         }
     ],
     "main": "server.js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/nponto/restfulserver"
+        "url": "https://github.com/nponto/webapp"
     },
     "dependencies": {
         "cors": "^2.8.5",
