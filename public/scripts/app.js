@@ -22,6 +22,7 @@ let neighborhood_markers =
     {location: [44.937705, -93.136997], marker: null},
     {location: [44.949203, -93.093739], marker: null}
 ];
+var newMarkers = [];
 
 function init() {
 
@@ -69,6 +70,8 @@ function init() {
         popupAnchor: [-3,76]
 
     });
+
+    
 
     southEastMarker = L.marker([44.942068, -93.020521], {icon: testIcon}).addTo(map);
     eastSideMarker = L.marker([44.977413, -93.025156], {icon: testIcon}).addTo(map);
@@ -147,7 +150,7 @@ function init() {
         var content = popup.getContent();
      
         //console.log(content);
-     }
+    }
      
 
 
@@ -272,7 +275,7 @@ function init() {
                 //console.log(data)
                 var dataString = "";
 
-                dataString += "<table>\n<tr>\n<th>Case Number</th>\n<th>Date-time</th>\n<th>Incident Type</th>\n<th>Incident</th>\n<th>Police Grid</th>\n<th>Neighborhood</th>\n<th>Block</th>\n</tr>";
+                dataString += "<table>\n<tr>\n<th>Case Number</th>\n<th>Date-time</th>\n<th>Incident Type</th>\n<th>Incident</th>\n<th>Police Grid</th>\n<th>Neighborhood</th>\n<th>Block</th>\n<th>Add Marker</th></tr>";
                 for(let i = 0; i < data.length; i++) {
                     //console.log(data[i]);
                     //console.log(data[i].case_number);
@@ -312,7 +315,9 @@ function init() {
 
                     dataString += neighborhoodString;
 
-                    dataString += "</td>\n" + "<td>" + data[i].block + "</td>\n" + "</tr>\n"
+                    dataString += "</td>\n" + "<td>" + data[i].block + "</td>\n";
+                    dataString += "<td><button onclick=\"addMarker(\'" + data[i].case_number + "\', \'" + data[i].date_time.toString() + "\', \'" + data[i].incident + "\',\'" + data[i].block + "\')\" class=\"markerButtons\" id=\"" + data[i].case_number + "\" type=\"button\">Add Marker to Map</button></td>" + "</tr>\n"
+                    
                 }
                 dataString += "</table>";
                 
@@ -320,12 +325,31 @@ function init() {
 
                 testMessage.innerHTML = testMessage.innerHTML.replace(/DATA/g, dataString);
 
+                //test();
+
+                
+
             }, 500);
+
+            /*function test() {
+                var btns = document.getElementsByClassName("markerButtons");
+                for (var i = 0; i < btns.length; i++) {
+                    //btns[i].addEventListener("click", addMarker(btns[i].case_number));
+                }
+                var test = document.getElementById("21816406");
+                test.addEventListener("click", addMarker("21816406"));
+            }*/
+
+            
             
         });
         
         
     }
+
+    
+
+
 
     function getCodeName(callback) {
         var req =new XMLHttpRequest();
@@ -621,8 +645,117 @@ function getJSON(url) {
 }
 
 
+function addMarker(case_number, date_time, incident, location) {
+    //console.log(case_number);
+    //console.log(date_time);
+    //console.log(incident);
+
+    
+
+    
+
+    geoLocate2(case_number, date_time, incident, location);
+}
+
+function geoLocate2(case_number, date_time, incident, location) {
+    // Perform geolocation using the Nominatim API
+    //  - get plain text location value from text input 'location'
+    //  - build URL for using with API
+    //console.log("test successful");
+    //console.log(location);
+
+    let pseudoLocation = "";
+    let locationArray = location.split(" ");
+    locationArray[0] = locationArray[0].replaceAll("X", "0");
+    for(let i = 0; i < locationArray.length; i++) {
+        pseudoLocation += locationArray[i];
+        pseudoLocation += "+";
+    }
+    pseudoLocation = pseudoLocation.substring(0, pseudoLocation.length - 1);
+
+    pseudoLocation += "+MN";
+
+    //console.log(pseudoLocation);
+
+    let url = 'https://nominatim.openstreetmap.org/search?q=' + pseudoLocation +
+              '&format=json&limit=25&accept-language=en';
+
+    //console.log(url);
+    
+    // TODO: download geolocation data using the API url
+    //       should call the `getJSON()` function
+    
+    getJSONLocate(url, (data) => {
+        
+        let list = document.getElementById('result');
+        let i;
+      
+        let location = data[0];
+        //console.log(data[0]);
+        if(data[0] == undefined) {
+            //cantFind = true;
+            console.log("Nominatim could not find this address");
+        } else {
+            let item = document.createElement('li');
+            item.textContent = location.display_name + ' (' + location.lat + ', ' + location.lon + ')';
+            list.appendChild(item);
+            var latlng = L.latLng(location.lat, location.lon);
+            map.setView(latlng, 15, this.options);
+            //console.log(location.lat + "\n" + location.lon);
 
 
+            var testIcon2 = L.icon({
+                iconUrl: 'leaf-green.png',
+            
+                iconSize: [38,95],
+                iconAnchor: [22,94],
+                popupAnchor: [-3,76]
+        
+            });
+        
+            newMarker = L.marker([location.lat, location.lon], {icon: testIcon2}).addTo(map);
+        
+            newMarker.bindPopup("Date/time:" + date_time + "\n" + "Incident:" + incident);
+            newMarker.on('click', onClick);
+
+            function onClick(e) {
+                var popup = e.target.getPopup();
+                var content = popup.getContent();
+             
+                //console.log(content);
+            }
+
+            newMarkers.push(newMarker);
+            
+
+        }
+        
+    });
+
+
+    var deleteMarker = document.getElementById('delete');
+    deleteMarker.addEventListener('click', deleteMarkers, false);
+
+    function deleteMarkers() {
+        //console.log(newMarkers.length);
+        for(let i = 0; i < newMarkers.length; i++) {
+            map.removeLayer(newMarkers[i]);
+        }
+    }
+
+
+
+    // TODO: once data is downloaded and available, you should dynamically
+    //       build items in the unordered list `result`. Each item should
+    //       have the full name of the location (display_name), followed
+    //       by the latitude and longitude
+    //       Example: location = St. Paul
+    //        - Saint Paul, Ramsey County, Minnesota, United States of
+    //          America (44.9504037, -93.1015026)
+    //        - Saint-Paul, Neufchâteau, Vosges, Grand Est, Metropolitan
+    //          France, 88170, France (48.3285226, 5.888596)
+    //        - ...
+}
 
 
 
